@@ -5,6 +5,8 @@ from random import randint, random
 import requests
 import time
 
+from algorithm import *
+
 pygame.init()
 
 sc = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -72,6 +74,7 @@ class Ant:
         self.lastEnemyAnt = lastEnemyAnt
         a = [1, 1, 4]
         self.pov = a[type1]
+        self.speed = [30, 70, 20][self.type]
 
     def draw(self):
         x, y = hex_to_dec(self.q, self.r)
@@ -154,15 +157,38 @@ def parse():
     hexes = [Hex(h['type'], h['q'], h['r'], h['cost']) for h in res['map']]
 
     
-
-'''
-ants = [Ant(i, randint(0, 2), randint(0, 50), randint(0, 50), 100, Food(randint(0, 2), randint(1, 10)), None, None, None, None) for i in range(20)]
-enemies = [Enemy(randint(0, 2), randint(0, 50), randint(0, 50), 100, Food(randint(0, 2), randint(1, 10)), 20) for i in range(10)]
-foods = [FoodOnMap(randint(0, 2), randint(0, 50), randint(0, 50), randint(1, 10)) for i in range(10)]
+map_size = 200
+ants = [Ant(i, randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 1), 100, Food(randint(0, 2), randint(1, 10)), None, None, None, None) for i in range(20)]
+enemies = [Enemy(randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 1), 100, Food(randint(0, 2), randint(1, 10)), 20) for i in range(10)]
+foods = [FoodOnMap(randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 1), randint(1, 10)) for i in range(50)]
 home = [{'q': 20, 'r': 20}, {'q': 20, 'r': 21}, {'q': 21, 'r': 20}]
 spot = {'q': 20, 'r': 20}
-hexes = [Hex(randint(1, 5), randint(0, 50), randint(0, 50), 1) for i in range(100)]
-'''
+hexes_all = []
+
+OP = [1, 1, 2, 1, float('inf')]
+
+for q in range(200):
+    hexes_all.append([])
+    for r in range(200):
+        hex_type = randint(2, 5)
+        hexes_all[q].append(Hex(hex_type, q, r, OP[hex_type - 1]))
+
+for i in range(10):
+    q = randint(5, 195)
+    r = randint(5, 195)
+    hexes_all[q][r] = Hex(1, q, r, 1)
+    hexes_all[q + 1][r] = Hex(1, q + 1, r, 1)
+    hexes_all[q][r + 1] = Hex(1, q, r + 1, 1)
+
+
+for el in home:
+    hexes_all[el['q']][el['r']] = Hex(1, el['q'], el['r'], 1)
+
+
+#general_map = Map([[[] for i in range(WIDTH)] for j in range(HEIGHT)], home, foods)
+#worker_ants = [WorkerAnt((ant.q, ant.r), ant.health, ant.speed) for ant in ants if ant.type == 0]
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -199,8 +225,8 @@ while True:
     edge_size_scaled = EDGE_SIZE * scale_k
     gap = edge_size_scaled * cos(radians(30)) * 2
     
-    if time.time() - prev_time >= 3:
-        parse()
+    if time.time() - prev_time >= 2:
+        # parse()
         prev_time = time.time()
 
     for hexag in hexes:
