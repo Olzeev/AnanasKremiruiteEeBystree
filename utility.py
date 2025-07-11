@@ -3,10 +3,13 @@ import heapq
 HEIGHT = 5000
 WIDTH = 5000
 
+
 DIRT = 1
 ACID = 2
 STONE = 3
 ANTHILL = 4
+EN_ANTHILL = 0
+HEX_TYPES = [ANTHILL, None, DIRT, ACID, STONE]
 MY_SCOUT = 5
 MY_FIGHTER = 6
 MY_WORKER = 7
@@ -22,6 +25,8 @@ FOODS = [APPLE, BREAD, NECTAR]
 WORKER = [MY_WORKER, EN_WORKER]
 SCOUT = [MY_SCOUT, EN_SCOUT]
 FIGHTER = [MY_FIGHTER, EN_FIGHTER]
+
+TRANSITION_BIAS = 1000
 
 def dist(a, b):
     return (a[0] - b[0])**2 + (a[1] - b[1])**2
@@ -42,7 +47,40 @@ class Map:
         self.world = world
         self.home = home
         self.food = food
-        self.is_raid_time = False
+
+    def update(self, ants, enemies, foods, hexes, home):
+        for i in range(HEIGHT):
+            for j in range(WIDTH):
+                for UN in MY_UNITS:
+                    if UN in self.world[i][j]:
+                        self.world[i][j].remove(UN)
+                for UN in EN_UNITS:
+                    if UN in self.world[i][j]:
+                        self.world[i][j].remove(UN)
+                
+        for ant in ants:
+            self.world[ant.r + TRANSITION_BIAS][ant.q + TRANSITION_BIAS].append(MY_UNITS[ant.type])
+        for enemy in enemies:
+            self.world[enemy.r + TRANSITION_BIAS][enemy.q + TRANSITION_BIAS].append(EN_UNITS[enemy.type])
+        for food in foods:
+            self.world[food.r + TRANSITION_BIAS][food.q + TRANSITION_BIAS].append(FOODS[food.type - 1])
+        for hexag in hexes:
+            if hexag.type == 2: # пустой
+                for f in FOODS:
+                    if f in self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS]:
+                        self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].remove(f)
+            if hexag.type == 1: # муравейник
+                if (hexag.q, hexag.r) in list(map(lambda x: (x['q'], x['r']), home)):
+                    self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(ANTHILL)
+                else:
+                    self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(EN_ANTHILL)
+            else:
+                self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(HEX_TYPES[hexag.type - 1])
+        
+        
+
+
+
     def get_available_points(self, el):
         if el.y % 2 == 1:
             directions = [
@@ -102,8 +140,8 @@ class Map:
         start = (start.x, start.y)
         goal = (goal.x, goal.y)
 
-        #if self.cost(self.world[goal[0]][goal[1]], ant, Point(goal[0], goal[1])) == float('inf'):
-        #    return None
+        if self.cost(self.world[goal[0]][goal[1]], ant, Point(goal[0], goal[1])) == float('inf'):
+            return None
 
         open_set = []
         heapq.heappush(open_set, (0, start[0], start[1]))
