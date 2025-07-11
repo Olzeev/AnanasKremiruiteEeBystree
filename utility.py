@@ -3,7 +3,6 @@ import heapq
 HEIGHT = 5000
 WIDTH = 5000
 
-EMPTY = 0
 DIRT = 1
 ACID = 2
 STONE = 3
@@ -11,11 +10,11 @@ ANTHILL = 4
 MY_SCOUT = 5
 MY_FIGHTER = 6
 MY_WORKER = 7
-MY_UNITS = [MY_SCOUT, MY_FIGHTER, MY_WORKER]
+MY_UNITS = [MY_WORKER, MY_FIGHTER, MY_SCOUT]
 EN_SCOUT = 8
 EN_FIGHTER = 9
 EN_WORKER = 10
-EN_UNITS = [EN_SCOUT, EN_FIGHTER, EN_WORKER]
+EN_UNITS = [EN_WORKER, EN_FIGHTER, EN_SCOUT]
 APPLE = 11
 BREAD = 12
 NECTAR = 13
@@ -43,6 +42,7 @@ class Map:
         self.world = world
         self.home = home
         self.food = food
+        self.is_raid_time = False
     def get_available_points(self, el):
         if el.y % 2 == 1:
             directions = [
@@ -102,8 +102,8 @@ class Map:
         start = (start.x, start.y)
         goal = (goal.x, goal.y)
 
-        if self.cost(self.world[goal[0]][goal[1]], ant, Point(goal[0], goal[1])) == float('inf'):
-            return None
+        #if self.cost(self.world[goal[0]][goal[1]], ant, Point(goal[0], goal[1])) == float('inf'):
+        #    return None
 
         open_set = []
         heapq.heappush(open_set, (0, start[0], start[1]))
