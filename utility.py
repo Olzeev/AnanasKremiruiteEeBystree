@@ -1,0 +1,158 @@
+import heapq
+
+HEIGHT = 10000
+WIDTH = 10000
+
+EMPTY = 0
+DIRT = 1
+ACID = 2
+STONE = 3
+ANTHILL = 4
+MY_SCOUT = 5
+MY_FIGHTER = 6
+MY_WORKER = 7
+MY_UNITS = [MY_SCOUT, MY_FIGHTER, MY_WORKER]
+EN_SCOUT = 8
+EN_FIGHTER = 9
+EN_WORKER = 10
+EN_UNITS = [EN_SCOUT, EN_FIGHTER, EN_WORKER]
+APPLE = 11
+BREAD = 12
+NECTAR = 13
+FOODS = [APPLE, BREAD, NECTAR]
+WORKER = [MY_WORKER, EN_WORKER]
+SCOUT = [MY_SCOUT, EN_SCOUT]
+FIGHTER = [MY_FIGHTER, EN_FIGHTER]
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class Map:
+    def __init__(self, world):
+        self.world = world
+
+    def get_available_points(self, el):
+        if el.y % 2 == 1:
+            directions = [
+                Point(el.x + 1, el.y),
+                Point(el.x + 1, el.y + 1),
+                Point(el.x + 1, el.y - 1),
+                Point(el.x - 1, el.y),
+                Point(el.x, el.y + 1),
+                Point(el.x, el.y - 1),
+            ]
+        else:
+            directions = [
+                Point(el.x, el.y + 1),
+                Point(el.x, el.y - 1),
+                Point(el.x + 1, el.y),
+                Point(el.x - 1, el.y),
+                Point(el.x - 1, el.y - 1),
+                Point(el.x - 1, el.y + 1),
+            ]
+        return  directions
+    def royalty(self, data, ant):
+        if len(data) == 0:
+            return 0
+        if STONE in data or ANTHILL in data or
+
+    def heuristic(self, a, b):
+        return (abs(a[0] - b[0]) + abs(a[1] - b[1])) // 2
+
+    def a_star(self, start, goal, ant):
+        if not self.check_valid_point(start):
+            return None
+        if not self.check_valid_point(goal):
+            return None
+        start = (start.x, start.y)
+        goal = (goal.x, goal.y)
+
+        if self.royalty(self.world[goal[0]][goal[1]], ant) == float('inf'):
+            return None
+
+        open_set = []
+        heapq.heappush(open_set, (0, start[0], start[1]))
+
+        # Для отслеживания пути
+        came_from = {}
+
+        # Стоимость пути от start до текущей точки
+        g_score = {(start[0], start[1]): 0}
+
+        # Оценочная стоимость start -> goal через текущую
+        f_score = {(start[0], start[1]): self.heuristic(start, goal)}
+
+        while open_set:
+            _, current_q, current_r = heapq.heappop(open_set)
+            current = (current_q, current_r)
+
+            if current == goal:
+                path = []
+                while current in came_from:
+                    path.append(current)
+                    current = came_from[current]
+                path.reverse()
+                return path
+
+            for re in self.get_available_points(Point(current_q, current_r)):
+                neighbor_q, neighbor_r = re.x, re.y
+
+                if not (0 <= neighbor_q <= WIDTH and 0 <= neighbor_r <= HEIGHT):
+                    continue
+
+                neighbor_type = self.world[neighbor_q][neighbor_r]
+                if self.royalty(neighbor_type, ant) == float('inf'):
+                    continue
+
+                tentative_g_score = g_score[current] + self.royalty(neighbor_type, ant)
+
+                if (neighbor_q, neighbor_r) not in g_score or tentative_g_score < g_score[(neighbor_q, neighbor_r)]:
+                    came_from[(neighbor_q, neighbor_r)] = current
+                    g_score[(neighbor_q, neighbor_r)] = tentative_g_score
+                    f_score[(neighbor_q, neighbor_r)] = tentative_g_score + self.heuristic((neighbor_q, neighbor_r), goal)
+                    heapq.heappush(open_set, (f_score[(neighbor_q, neighbor_r)], neighbor_q, neighbor_r))
+
+        return None
+    def check_enemy(self, pos, rad):
+        for unit in EN_UNITS:
+            return self.check_item(pos, rad, unit)
+
+    def check_food(self, pos, rad):
+        for food in FOODS:
+            if self.check_item(pos, rad, food):
+                return True
+        return False
+
+    def check_item(self, pos, rad, item):
+        next_points = []
+        qur_points = [pos]
+        used_points = [pos]
+
+        for i in range(rad):
+            for el in qur_points:
+                directions = self.get_avaliable_points(el)
+                if item in self.world[el.y][el.x]:
+                    return True
+                for new_pos in directions:
+                    if self.check_valid_point(new_pos) and new_pos not in used_points:
+                        used_points.append(new_pos)
+                        next_points.append(new_pos)
+
+            qur_points = next_points
+            next_points = []
+            '''
+                    enemy_positions = []
+                    for point in used_points:
+                        if point != pos and self.is_enemy(point):
+                            enemy_positions.append(point)
+
+                    return enemy_positions
+                    '''
+        return False
+
+    def check_valid_point(self, pos):
+        if 0 <= pos.x <= WIDTH and 0 <= pos.y <= HEIGHT:
+            return True
+        return False
