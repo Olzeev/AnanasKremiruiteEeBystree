@@ -163,7 +163,6 @@ home = [{'q': 20, 'r': 20}, {'q': 20, 'r': 21}, {'q': 21, 'r': 20}]
 spot = {'q': 20, 'r': 20}
 hexes = [Hex(randint(1, 5), randint(0, 50), randint(0, 50), 1) for i in range(100)]
 '''
-
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

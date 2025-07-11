@@ -1,7 +1,9 @@
 from utility import *
+from visualizer import *
+import random
 
 class Node:
-    def execute(self, ant, game_state) -> str:
+    def execute(self, ant, world) -> str:
         """SUCCESS, FAILURE, RUNNING"""
         raise NotImplementedError
 
@@ -11,9 +13,9 @@ class Selector(Node):
     def __init__(self, children):
         self.children = children
 
-    def execute(self, ant, game_state):
+    def execute(self, ant, world):
         for child in self.children:
-            result = child.execute(ant, game_state)
+            result = child.execute(ant, world)
             if result == 'SUCCESS':
                 return 'SUCCESS'
         return 'FAILURE'
@@ -24,9 +26,9 @@ class Sequence(Node):
     def __init__(self, children):
         self.children = children
 
-    def execute(self, ant, game_state):
+    def execute(self, ant, world):
         for child in self.children:
-            result = child.execute(ant, game_state)
+            result = child.execute(ant, world)
             if result == 'FAILURE':
                 return 'FAILURE'
         return 'SUCCESS'
@@ -37,22 +39,22 @@ class IsCarryingFood(Node):
 
 
 class IsEnemyNear(Node):
-    def execute(self, ant, game_state):
-        if ant.world.check_enemy(ant.pos, 1): #Медленный вариатн,  в теории можно пройтись по enemies и просчитать дистанцию
+    def execute(self, ant, world):
+        if world.check_enemy(ant.pos, 1): #Медленный вариатн,  в теории можно пройтись по enemies и просчитать дистанцию
             return 'SUCCESS'
         return 'FAILURE'
 
 
 class IsFoodNear(Node):
-    def execute(self, ant, game_state):
-        if ant.world.check_food(ant.pos, ant.radius): #Медленный вариатн,  в теории можно пройтись по enemies и просчитать дистанцию
+    def execute(self, ant, world):
+        if world.check_food(ant.pos, ant.radius): #Медленный вариатн,  в теории можно пройтись по enemies и просчитать дистанцию
             return 'SUCCESS'
         return 'FAILURE'
 
 
 class ReturnToBase(Node):
-    def execute(self, ant, game_state):
-        path = ant.world.a_star(ant.pos, game_state.home)
+    def execute(self, ant, world):
+        path = world.a_star(ant.pos, world.home)
         if path:
             ant.move(path[0])
             return 'RUNNING' if len(path) > 1 else 'SUCCESS'
@@ -60,35 +62,49 @@ class ReturnToBase(Node):
 
 
 class CollectFood(Node):
-    def execute(self, ant, game_state):
-        nearest_food = find_nearest_food(ant, game_state.food)
+    def execute(self, ant, world):
+        nearest_food = world.get_nearest_food(ant.pos, ant.speed)
+        if nearest_food == None:
+            pos = hex_to_dec(ant.pos.x, ant.pos.y)
+            data = [dist(pos, hex_to_dec(food.q, food.r)) for food in world.food]
+            if len(data) != 0:
+                ex_food = world.food[world.food.index(min(data))]
+                nearest_food = Point(ex_food.q, ex_food.r)
         if nearest_food:
             path = ant.world.a_star(ant.pos, nearest_food)
-            ant.move(path[0])
+            ant.move(path) #Отправили запрос
             return 'RUNNING'
         return 'FAILURE'
 
 
 class Explore(Node):
-    def execute(self, ant, _):
-        ant.move((random_q, random_r))
+    def execute(self, ant, world):
+        while True:
+            dq, dr = random.randint(-ant.speed, ant.speed), random.randint(-ant.speed, ant.speed)
+            next_point = Point(ant.pos.x + dq, ant.pos.y + dr)
+            if world.check_valid_point(next_point) and (dq != 0 and dr != 0):
+                path = world.a_star(ant.pos, next_point)
+                if path is not None:
+                    break
+        ant.move(path)
         return 'RUNNING'
 
 class Ant:
-    def __init__(self, pos, world):
+    def __init__(self, hp,pos):
         self.food = None
         self.pos = pos
-        self.world = Map(world)
+        self.hp = hp
 
 class WorkerAnt(Ant):
-    def __init__(self, pos, world):
-        super().__init__(pos, world)
+    def __init__(self, pos, hp, speed):
+        super().__init__(pos, hp)
         self.bt = self.create_worker_bt()
         self.radius = 1
         self.type = MY_WORKER
+        self.speed = speed
 
-    def make_move(self, game_state):
-        self.bt.execute(self, game_state)
+    def make_move(self, world):
+        self.bt.execute(self, world)
 
     def create_worker_bt(self):
         return Selector(children=[
