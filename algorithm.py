@@ -90,10 +90,11 @@ class Explore(Node):
         return 'RUNNING'
 
 class Ant:
-    def __init__(self, hp,pos):
+    def __init__(self, hp, pos):
         self.food = None
         self.pos = pos
         self.hp = hp
+        
 
 class WorkerAnt(Ant):
     def __init__(self, pos, hp, speed):

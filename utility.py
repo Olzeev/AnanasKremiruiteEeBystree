@@ -1,7 +1,7 @@
 import heapq
 
-HEIGHT = 5000
-WIDTH = 5000
+MAP_HEIGHT = 5000
+MAP_WIDTH = 5000
 
 
 DIRT = 1
@@ -49,8 +49,8 @@ class Map:
         self.food = food
 
     def update(self, ants, enemies, foods, hexes, home):
-        for i in range(HEIGHT):
-            for j in range(WIDTH):
+        for i in range(MAP_HEIGHT):
+            for j in range(MAP_WIDTH):
                 for UN in MY_UNITS:
                     if UN in self.world[i][j]:
                         self.world[i][j].remove(UN)
@@ -76,10 +76,6 @@ class Map:
                     self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(EN_ANTHILL)
             else:
                 self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(HEX_TYPES[hexag.type - 1])
-        
-        
-
-
 
     def get_available_points(self, el):
         if el.y % 2 == 1:
@@ -170,7 +166,7 @@ class Map:
             for re in self.get_available_points(Point(current_q, current_r)):
                 neighbor_q, neighbor_r = re.x, re.y
 
-                if not (0 <= neighbor_q <= WIDTH and 0 <= neighbor_r <= HEIGHT):
+                if not (0 <= neighbor_q < MAP_WIDTH and 0 <= neighbor_r < MAP_HEIGHT):
                     continue
 
                 neighbor_type = self.world[neighbor_q][neighbor_r]
@@ -267,6 +263,6 @@ class Map:
 
         return enemy_positions
     def check_valid_point(self, pos):
-        if 0 <= pos.x <= WIDTH and 0 <= pos.y <= HEIGHT:
+        if 0 <= pos.x < MAP_WIDTH and 0 <= pos.y < MAP_HEIGHT:
             return True
         return False
