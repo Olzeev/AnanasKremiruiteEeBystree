@@ -77,7 +77,7 @@ class CollectFood(Node):
         return 'FAILURE'
 
 
-class Explore(Node):
+class Explore(Node): #Не оптимальный, переписать
     def execute(self, ant, world):
         while True:
             dq, dr = random.randint(-ant.speed, ant.speed), random.randint(-ant.speed, ant.speed)
@@ -86,23 +86,23 @@ class Explore(Node):
                 path = world.a_star(ant.pos, next_point)
                 if path is not None:
                     break
-        ant.move(path)
+        ant.move(path) #Отправили запрос
         return 'RUNNING'
 
 class Ant:
-    def __init__(self, hp, pos):
+    def __init__(self, hp,pos):
         self.food = None
-        self.pos = pos
+        self.pos = Point(pos.x + TRANSITION_BIAS, pos.y + TRANSITION_BIAS)
         self.hp = hp
-        
-
+    def move(self, path):
+        api.move([(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
 class WorkerAnt(Ant):
-    def __init__(self, pos, hp, speed):
+    def __init__(self, pos, hp):
         super().__init__(pos, hp)
         self.bt = self.create_worker_bt()
         self.radius = 1
         self.type = MY_WORKER
-        self.speed = speed
+        self.speed = 5
 
     def make_move(self, world):
         self.bt.execute(self, world)
