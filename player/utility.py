@@ -33,6 +33,7 @@ def get_damage(type):
         return 20
     if type == EN_FIGHTER:
         return 70
+
 class Point:
     def __init__(self, x, y):
         self.x = x

@@ -1,7 +1,8 @@
 import pygame
-from vis_const import *
+from player.vis_const import *
 from math import sin, cos, radians
 from random import randint, random
+from player.ant import Ant as GameAnt
 import requests
 import time
 
@@ -73,6 +74,17 @@ class Ant:
         a = [1, 1, 4]
         self.pov = a[type1]
 
+    def fromGameAnt(ant: GameAnt):
+        return __class__(
+            ant.id,
+            ant.type,
+            ant.coord.x, ant.coord.y,
+            ant.health,
+            ant.food.amount,
+            ...
+        ):
+        pass
+ # "lublulalka bum um bum meow love cat sweet murmurhash " 
     def draw(self):
         x, y = hex_to_dec(self.q, self.r)
         draw_hex(x, y, edge_size_scaled, HEX_VISIBLE_BG_COLOR, HEX_VISIBLE_OUTLINE_COLOR)
