@@ -1,8 +1,7 @@
 import heapq
 
-HEIGHT = 5000
-WIDTH = 5000
-
+MAP_HEIGHT = 5000
+MAP_WIDTH = 5000
 
 DIRT = 1
 ACID = 2
@@ -28,8 +27,11 @@ FIGHTER = [MY_FIGHTER, EN_FIGHTER]
 
 TRANSITION_BIAS = 1000
 
+
 def dist(a, b):
-    return (a[0] - b[0])**2 + (a[1] - b[1])**2
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
 def get_damage(type):
     if type == EN_WORKER:
         return 30
@@ -37,27 +39,36 @@ def get_damage(type):
         return 20
     if type == EN_FIGHTER:
         return 70
+
+
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
 
 class Map:
     def __init__(self, world, home, food):
         self.world = world
         self.home = home
         self.food = food
+        self.is_raid_time = False
+        self.anthills = None
+        self.update_times = 0
 
     def update(self, ants, enemies, foods, hexes, home):
-        for i in range(HEIGHT):
-            for j in range(WIDTH):
-                for UN in MY_UNITS:
-                    if UN in self.world[i][j]:
-                        self.world[i][j].remove(UN)
-                for UN in EN_UNITS:
-                    if UN in self.world[i][j]:
-                        self.world[i][j].remove(UN)
-                
+        self.update_times += 1
+        if self.update_times == 10:
+            for i in range(MAP_HEIGHT):
+                for j in range(MAP_WIDTH):
+                    for UN in MY_UNITS:
+                        if UN in self.world[i][j]:
+                            self.world[i][j].remove(UN)
+                    for UN in EN_UNITS:
+                        if UN in self.world[i][j]:
+                            self.world[i][j].remove(UN)
+        for hexag in hexes:
+            self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS] = []
         for ant in ants:
             self.world[ant.r + TRANSITION_BIAS][ant.q + TRANSITION_BIAS].append(MY_UNITS[ant.type])
         for enemy in enemies:
@@ -65,21 +76,18 @@ class Map:
         for food in foods:
             self.world[food.r + TRANSITION_BIAS][food.q + TRANSITION_BIAS].append(FOODS[food.type - 1])
         for hexag in hexes:
-            if hexag.type == 2: # пустой
+            if hexag.type == 2:  # пустой
                 for f in FOODS:
                     if f in self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS]:
                         self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].remove(f)
-            if hexag.type == 1: # муравейник
+            if hexag.type == 1:  # муравейник
                 if (hexag.q, hexag.r) in list(map(lambda x: (x['q'], x['r']), home)):
                     self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(ANTHILL)
                 else:
                     self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(EN_ANTHILL)
+                    self.anthills.append(Point(hexag.q + TRANSITION_BIAS,hexag.r + TRANSITION_BIAS))
             else:
                 self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(HEX_TYPES[hexag.type - 1])
-        
-        
-
-
 
     def get_available_points(self, el):
         if el.y % 2 == 1:
@@ -101,7 +109,8 @@ class Map:
                 Point(el.x - 1, el.y + 1),
             ]
         directions = [el for el in directions if self.check_valid_point(el)]
-        return  directions
+        return directions
+
     def cost(self, data, ant, pos):
         if len(data) == 0:
             return 0
@@ -170,7 +179,7 @@ class Map:
             for re in self.get_available_points(Point(current_q, current_r)):
                 neighbor_q, neighbor_r = re.x, re.y
 
-                if not (0 <= neighbor_q <= WIDTH and 0 <= neighbor_r <= HEIGHT):
+                if not (0 <= neighbor_q < MAP_WIDTH and 0 <= neighbor_r < MAP_HEIGHT):
                     continue
 
                 neighbor_type = self.world[neighbor_q][neighbor_r]
@@ -182,16 +191,18 @@ class Map:
                 if (neighbor_q, neighbor_r) not in g_score or tentative_g_score < g_score[(neighbor_q, neighbor_r)]:
                     came_from[(neighbor_q, neighbor_r)] = current
                     g_score[(neighbor_q, neighbor_r)] = tentative_g_score
-                    f_score[(neighbor_q, neighbor_r)] = tentative_g_score + self.heuristic((neighbor_q, neighbor_r), goal)
+                    f_score[(neighbor_q, neighbor_r)] = tentative_g_score + self.heuristic((neighbor_q, neighbor_r),
+                                                                                           goal)
                     heapq.heappush(open_set, (f_score[(neighbor_q, neighbor_r)], neighbor_q, neighbor_r))
 
         return None
+
     def check_enemy(self, pos, rad):
         for unit in EN_UNITS:
             return self.check_item(pos, rad, unit)
 
     def check_anthill(self, pos, rad):
-        return  self.check_item(pos, rad, ANTHILL)
+        return self.check_item(pos, rad, ANTHILL)
 
     def check_food(self, pos, rad):
         for food in FOODS:
@@ -234,7 +245,8 @@ class Map:
         for i in range(rad):
             for el in qur_points:
                 directions = self.get_avaliable_points(el)
-                if APPLE in self.world[el.y][el.x] or BREAD in self.world[el.y][el.x] or NECTAR in self.world[el.y][el.x]:
+                if APPLE in self.world[el.y][el.x] or BREAD in self.world[el.y][el.x] or NECTAR in self.world[el.y][
+                    el.x]:
                     return el
                 for new_pos in directions:
                     if self.check_valid_point(new_pos) and new_pos not in used_points:
@@ -244,6 +256,7 @@ class Map:
             qur_points = next_points
             next_points = []
         return None
+
     def get_enemies_in_rad(self, pos, rad):
         next_points = []
         qur_points = [pos]
@@ -266,7 +279,8 @@ class Map:
                 enemy_positions.append(point)
 
         return enemy_positions
+
     def check_valid_point(self, pos):
-        if 0 <= pos.x <= WIDTH and 0 <= pos.y <= HEIGHT:
+        if 0 <= pos.x < MAP_WIDTH and 0 <= pos.y < MAP_HEIGHT:
             return True
         return False

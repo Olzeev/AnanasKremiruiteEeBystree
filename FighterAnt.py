@@ -42,7 +42,7 @@ class WarriorAnt(Ant):
     def make_move(self, world):
         self.bt.execute(self, world)
 
-    def create_warrior_bt():
+    def create_warrior_bt(self):
         return Selector(children=[
             Sequence(children=[
                 IsGroupTacticActive(),

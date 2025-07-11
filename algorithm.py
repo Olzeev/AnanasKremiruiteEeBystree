@@ -92,9 +92,10 @@ class Explore(Node): #Не оптимальный, переписать
 class Ant:
     def __init__(self, hp,pos):
         self.food = None
-        self.pos = pos
+        self.pos = Point(pos.x + TRANSITION_BIAS, pos.y + TRANSITION_BIAS)
         self.hp = hp
-
+    def move(self, path):
+        api.move([(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
 class WorkerAnt(Ant):
     def __init__(self, pos, hp):
         super().__init__(pos, hp)
