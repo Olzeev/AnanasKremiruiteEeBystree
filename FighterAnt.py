@@ -5,6 +5,10 @@ from visualizer import *
 
 class IsInCombat(Node):
     def execute(self, ant, world):
+        if world.check_enemy(ant.pos, 1):
+            ant.in_combat = True
+        else:
+            ant.in_combat = False
         return 'SUCCESS' if ant.in_combat else 'FAILURE'
 
 
@@ -18,31 +22,31 @@ class HasEnoughAllies(Node):
         if len(our_team_damage) > 1:
             our_damage *= 1.5
 
-        en_team_hp = [teammate.damage for teammate in ant.hot_point.enemies]
-        en_damage = sum(en_team_damage)
-        if len(en_team_damage) > 1:
-            en_damage *= 1.5
+        en_team_hp = [teammate.hp for teammate in ant.hot_point.enemies]
+        en_hp = sum(en_team_hp)
 
-        allies = world.count_nearby_allies(ant.q, ant.r, radius=2)
-        return 'SUCCESS' if allies >= self.min_allies else 'FAILURE'
+        our_team_hp = [teammate.hp for teammate in ant.hot_point.fighters]
+        our_hp = sum(our_team_hp)
+
+        en_team_damage = [teammate.hp for teammate in ant.hot_point.enemies]
+        en_damage = sum(en_team_damage)
+
+        if our_damage >= en_hp and our_hp >= en_damage:
+            return 'SUCCESS'
+        return 'FAILURE'
 
 
 class SOSSignalActive(Node):
-    """Проверяет активные сигналы о помощи."""
-
     def execute(self, ant, world):
-        return 'SUCCESS' if world.get_sos_signals(ant.team) else 'FAILURE'
+        return 'SUCCESS' if ant.hot_point else 'FAILURE'
 
 class ContinueFighting(Node):
-    """Продолжает текущий бой."""
     def execute(self, ant, world):
-        ant.attack(world.get_nearest_enemy(ant.q, ant.r))
         return 'SUCCESS'
 
 class RequestBackup(Node):
-    """Отправляет запрос подкрепления."""
     def execute(self, ant, world):
-        world.send_sos(ant.q, ant.r, ant.team)
+        nearest_teammates = world.get
         return 'SUCCESS'
 
 class RetreatToBase(Node):
@@ -78,39 +82,31 @@ class WarriorAnt(Ant):
 
     def create_warrior_bt(self):
         return Selector(children=[
-            # Приоритет 1: Текущий бой
+            # Главный боевой Sequence (проверяет IsInCombat только один раз)
             Sequence(children=[
-                IsInCombat(),
-                HasEnoughAllies(min_allies=2),
-                ContinueFighting()
+                IsInCombat(),  # Проверяем один раз в начале
+                Selector(children=[  # Варианты действий в бою
+                    Sequence(children=[
+                        HasEnoughAllies(min_allies=2),
+                        ContinueFighting()
+                    ]),
+                    RequestBackup(),  # Если сил недостаточно - запрашиваем помощь
+                    RetreatToBase()  # Если помощь недоступна - отступаем
+                ])
             ]),
 
-            # Приоритет 2: Запрос помощи
-            Sequence(children=[
-                IsInCombat(),
-                RequestBackup()
-            ]),
-
-            # Приоритет 3: Отступление
-            Sequence(children=[
-                IsInCombat(),
-                RetreatToBase()
-            ]),
-
-            # Приоритет 4: Ответ на SOS
+            # Остальные приоритеты
             Sequence(children=[
                 SOSSignalActive(),
                 RespondToSOS()
             ]),
 
-            # Приоритет 5: Новые угрозы
             Sequence(children=[
                 IsEnemyVisible(),
                 HasEnoughAllies(min_allies=1),
                 AttackEnemy()
             ]),
 
-            # Приоритет 6: Патрулирование
             PatrolWithResourceCheck()
         ])
 

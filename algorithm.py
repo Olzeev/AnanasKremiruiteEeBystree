@@ -57,8 +57,8 @@ class ReturnToBase(Node):
         for i in range(len(self.home)):
             path = world.a_star(ant.pos, world.home[i])
             if path:
-                ant.move(path[0])
-                return 'RUNNING' if len(path) > 1 else 'SUCCESS'
+                ant.move(path)
+                return 'SUCCESS'
         return 'FAILURE'
 
 
@@ -74,7 +74,7 @@ class CollectFood(Node):
         if nearest_food:
             path = ant.world.a_star(ant.pos, nearest_food)
             ant.move(path) #Отправили запрос
-            return 'RUNNING'
+            return 'SUCCESS'
         return 'FAILURE'
 
 
@@ -88,7 +88,7 @@ class Explore(Node): #Не оптимальный, переписать
                 if path is not None:
                     break
         ant.move(path) #Отправили запрос
-        return 'RUNNING'
+        return 'SUCCESS'
 
 class Ant:
     def __init__(self, hp,pos, damage):
