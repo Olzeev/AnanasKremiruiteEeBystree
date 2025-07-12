@@ -138,7 +138,7 @@ class PatrolWithResourceCheck(Node):
 
 
 class WarriorAnt(Ant):
-    def __init__(self, pos, hp, damage):
+    def __init__(self, id1, pos, hp, damage):
         super().__init__(pos, hp, damage)
         self.bt = self.create_warrior_bt()
         self.radius = 1
