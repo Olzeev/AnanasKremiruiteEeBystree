@@ -61,7 +61,6 @@ class Map:
         if self.home == None:
             self.home = [(el.q + TRANSITION_BIAS, el.r + TRANSITION_BIAS) for el in home]
         self.update_times += 1
-        self.ants = ants
         if self.update_times == 10:
             for i in range(MAP_HEIGHT):
                 for j in range(MAP_WIDTH):
@@ -73,8 +72,12 @@ class Map:
                             self.world[i][j].remove(UN)
         for hexag in hexes:
             self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS] = []
+        self.ants = []
         for ant in ants:
             self.world[ant.r + TRANSITION_BIAS][ant.q + TRANSITION_BIAS].append(MY_UNITS[ant.type])
+            ant.q += TRANSITION_BIAS
+            ant.r += TRANSITION_BIAS
+            self.ants.append(ant)
         for enemy in enemies:
             self.world[enemy.r + TRANSITION_BIAS][enemy.q + TRANSITION_BIAS].append(EN_UNITS[enemy.type])
         self.food = []
@@ -282,10 +285,11 @@ class Map:
 
         enemy_positions = []
         for point in used_points:
-            if point != pos and self.world[point.y][point.x] in EN_UNITS:
+            if point != pos and True in [type in self.world[point.y][point.x] for type in EN_UNITS]:
                 enemy_positions.append(point)
 
         return enemy_positions
+
 
     def check_valid_point(self, pos):
         if 0 <= pos.x < MAP_WIDTH and 0 <= pos.y < MAP_HEIGHT:

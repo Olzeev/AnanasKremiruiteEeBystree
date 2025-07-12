@@ -108,6 +108,10 @@ class Ant:
     def move(self, path):
         api.move([(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
 
+    def update(self, hp, pos):
+        self.hp = hp
+        self.pos = pos
+
 
 class WorkerAnt(Ant):
     def __init__(self, id1, pos, hp, damage):
