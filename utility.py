@@ -151,6 +151,18 @@ class Map:
     def heuristic(self, a, b):
         return (abs(a[0] - b[0]) + abs(a[1] - b[1])) // 2
 
+    def block_cost(self, data):
+        if ANTHILL in data:
+            return 1
+        if EN_ANTHILL in data:
+            return 1
+        if DIRT in data:
+            return 2
+        if ACID in data:
+            return 1
+        else:
+            return 1
+
     def a_star(self, start, goal, ant):
         if not self.check_valid_point(start):
             return None
@@ -184,7 +196,17 @@ class Map:
                     path.append(current)
                     current = came_from[current]
                 path.reverse()
-                return path
+                end_path = []
+                speed = ant.speed
+                i = 0
+                while speed - self.block_cost(self.world[path[i][1]][path[i][0]])!= 0:
+                    speed -= self.block_cost(self.world[path[i][1]][path[i][0]])
+                    end_path.append(path[i])
+                    i+=1
+                if len(end_path) == 0:
+                    return None
+
+                return end_path
 
             for re in self.get_available_points(Point(current_q, current_r)):
                 neighbor_q, neighbor_r = re.x, re.y
@@ -204,7 +226,6 @@ class Map:
                     f_score[(neighbor_q, neighbor_r)] = tentative_g_score + self.heuristic((neighbor_q, neighbor_r),
                                                                                            goal)
                     heapq.heappush(open_set, (f_score[(neighbor_q, neighbor_r)], neighbor_q, neighbor_r))
-
         return None
 
     def check_enemy(self, pos, rad):
@@ -290,6 +311,28 @@ class Map:
 
         return enemy_positions
 
+    def get_teammates_in_rad(self, pos, rad):
+        next_points = []
+        qur_points = [pos]
+        used_points = [pos]
+
+        for i in range(rad):
+            for el in qur_points:
+                directions = self.get_avaliable_points(el)
+                for new_pos in directions:
+                    if self.check_valid_point(new_pos) and new_pos not in used_points:
+                        used_points.append(new_pos)
+                        next_points.append(new_pos)
+
+            qur_points = next_points
+            next_points = []
+
+        teammates_positions = []
+        for point in used_points:
+            if point != pos and True in [type in self.world[point.y][point.x] for type in MY_UNITS]:
+                teammates_positions.append(point)
+
+        return teammates_positions
 
     def check_valid_point(self, pos):
         if 0 <= pos.x < MAP_WIDTH and 0 <= pos.y < MAP_HEIGHT:
