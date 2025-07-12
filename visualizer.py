@@ -63,7 +63,7 @@ class FoodOnMap:
         print_text(str(self.amount), (x, y), int(gap * 0.8), (50, 50, 255), 'left')
 
 
-class Ant:
+class Ant1:
     def __init__(self, id1, type1, q, r, health, food, lastMove, move, lastAttack, lastEnemyAnt):
         self.id = id1
         self.type = type1
@@ -144,7 +144,7 @@ def parse():
     ants_r = res['ants']
     ants = []
     for ant in ants_r:
-        ants.append(Ant(ant['id'], ant['type'], ant['q'], ant['r'], ant['health'], Food(ant['food']['type'], ant['food']['amount']), None, None, None, None))
+        ants.append(Ant1(ant['id'], ant['type'], ant['q'], ant['r'], ant['health'], Food(ant['food']['type'], ant['food']['amount']), None, None, None, None))
 
     enemies_r = res['enemies']
     enemies = []
@@ -170,7 +170,7 @@ def parse():
                 worker_ants.append(WorkerAnt(el.id, el.health, (el.q, el.r), 30))
         elif el.type == 1:
             if el.id not in list(map(lambda x: x.id, fighter_ants)):
-                #fighter_ants.append(FighterAnt(el.id, el.health, (el.q, el.r), 70))
+                fighter_ants.append(WarriorAnt(el.id, el.health, (el.q, el.r), 70))
                 pass
         elif el.type == 2:
             if el.id not in list(map(lambda x: x.id, scout_ants)):
@@ -213,7 +213,7 @@ def parse():
             el.update(t.health, (t.q, t.r))
             
             
-    
+'''
 map_size = 200
 ants = [Ant(i, randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 1), 100, Food(randint(0, 2), randint(1, 10)), None, None, None, None) for i in range(20)]
 enemies = [Enemy(randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 1), 100, Food(randint(0, 2), randint(1, 10)), 20) for i in range(10)]
@@ -221,7 +221,7 @@ foods = [FoodOnMap(randint(0, 2), randint(0, map_size - 1), randint(0, map_size 
 home = [{'q': 20, 'r': 20}, {'q': 20, 'r': 21}, {'q': 21, 'r': 20}]
 spot = {'q': 20, 'r': 20}
 hexes = [Hex(randint(1, 4), randint(0, 200), randint(0, 200), 1)]
-
+'''
 
 general_map = Map([[[] for i in range(MAP_WIDTH)] for j in range(MAP_HEIGHT)])
 worker_ants = []
@@ -276,6 +276,11 @@ while True:
 
         for worker in worker_ants:
             worker.make_move(general_map)
+        for scout in scout_ants:
+            scout.make_move(general_map)
+        for fighter in fighter_ants:
+            fighter.make_move(general_map)
+            pass
         prev_time = time.time()
 
     for hexag in hexes:

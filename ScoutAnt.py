@@ -39,6 +39,7 @@ class BuildRoad(Node):
 class BuildAroundBase(Node):
     def execute(self, ant, world):
         obs_ants = list(filter(lambda x: x.type == 2, world.ants)).sort(key=lambda x: x.id)
+        obs_ants = [] if obs_ants is None else obs_ants
         ind = 0
         for a in obs_ants:
             if a.id == ant.id:
@@ -46,9 +47,9 @@ class BuildAroundBase(Node):
             ind += 1
         phi1 = pi * 0.2 * ind
         r1 = phi1 * 1.4
-        q_new = ant.q + r1 * cos(phi1)
-        r_new = ant.q + r1 * sin(phi1)
-        path = world.a_star(ant.pos, (q_new, r_new))
+        q_new = int(ant.pos.x + r1 * cos(phi1))
+        r_new = int(ant.pos.y + r1 * sin(phi1))
+        path = world.a_star(ant.pos, Point(q_new, r_new), ant)
         if path:
             ant.move(path[0])
             return 'RUNNING' if len(path) > 1 else 'SUCCESS'

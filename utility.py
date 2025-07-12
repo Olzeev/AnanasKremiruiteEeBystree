@@ -1,7 +1,7 @@
 import heapq
 
-MAP_HEIGHT = 5000
-MAP_WIDTH = 5000
+MAP_HEIGHT = 2000
+MAP_WIDTH = 2000
 
 DIRT = 1
 ACID = 2
@@ -25,7 +25,7 @@ WORKER = [MY_WORKER, EN_WORKER]
 SCOUT = [MY_SCOUT, EN_SCOUT]
 FIGHTER = [MY_FIGHTER, EN_FIGHTER]
 
-TRANSITION_BIAS = 2000
+TRANSITION_BIAS = 1000
 
 
 def dist(a, b):
@@ -249,7 +249,6 @@ class Map:
         for i in range(rad):
             for el in qur_points:
                 directions = self.get_available_points(el)
-                print(el.y, el.x)
                 if item in self.world[el.y][el.x]:
                     return True
                 for new_pos in directions:
@@ -296,7 +295,7 @@ class Map:
 
         for i in range(rad):
             for el in qur_points:
-                directions = self.get_avaliable_points(el)
+                directions = self.get_available_points(el)
                 for new_pos in directions:
                     if self.check_valid_point(new_pos) and new_pos not in used_points:
                         used_points.append(new_pos)

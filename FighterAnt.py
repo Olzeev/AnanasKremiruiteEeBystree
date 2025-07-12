@@ -128,7 +128,7 @@ class PatrolWithResourceCheck(Node):
         for dq, dr in offsets:
             q = base_pos[0] + dq
             r = base_pos[1] + dr
-            if world.is_valid_position(Point(q, r)):
+            if world.check_valid_point(Point(q, r)):
                 self.patrol_points.append((q, r))
 
         if not self.patrol_points:
@@ -139,7 +139,7 @@ class PatrolWithResourceCheck(Node):
 
 class WarriorAnt(Ant):
     def __init__(self, id1, pos, hp, damage):
-        super().__init__(pos, hp, damage)
+        super().__init__(id1, pos, hp, damage)
         self.bt = self.create_warrior_bt()
         self.radius = 1
         self.id = id1
@@ -158,7 +158,7 @@ class WarriorAnt(Ant):
                 IsInCombat(),  # Проверяем один раз в начале
                 Selector(children=[  # Варианты действий в бою
                     Sequence(children=[
-                        RequestBackup(min_allies=2),
+                        RequestBackup(),
                         ContinueFighting()
                     ]),
                     ReturnToBase()  # Если помощь недоступна - отступаем
@@ -173,7 +173,7 @@ class WarriorAnt(Ant):
 
             Sequence(children=[
                 IsEnemyVisible(),
-                RequestBackup(min_allies=1),
+                RequestBackup(),
                 RespondToSOS()
             ]),
 
@@ -195,7 +195,7 @@ class HotPoint:
         next_enemy = self.enemies
         next_next_enemy = []
         self.enemies = []
-        while len(next_enemy)!=0:
+        while len(next_enemy) != 0:
             for enemy in next_enemy:
                 if world.world[enemy.y][enemy.x] in EN_UNITS:
                     self.enemies.append(enemy)
@@ -207,5 +207,6 @@ class HotPoint:
                         next_next_enemy.append(pos)
             next_enemy = next_next_enemy
             next_next_enemy =[]
+            
 
 
