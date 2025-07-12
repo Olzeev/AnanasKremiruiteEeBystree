@@ -199,7 +199,7 @@ class Map:
                 end_path = []
                 speed = ant.speed
                 i = 0
-                while speed - self.block_cost(self.world[path[i][1]][path[i][0]])!= 0:
+                while speed - self.block_cost(self.world[path[i][1]][path[i][0]])!= 0 and i < len(path):
                     speed -= self.block_cost(self.world[path[i][1]][path[i][0]])
                     end_path.append(path[i])
                     i+=1
