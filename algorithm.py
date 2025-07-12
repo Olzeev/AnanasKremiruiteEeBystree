@@ -2,6 +2,8 @@ from utility import *
 import random
 from api import api_move
 
+ants_all = []
+
 class Node:
     def execute(self, ant, world) -> str:
         """SUCCESS, FAILURE, RUNNING"""
@@ -33,13 +35,29 @@ class Sequence(Node):
                 return 'FAILURE'
         return 'SUCCESS'
 
+def pizdovatNaBazu(ant, world):
+    if ant.food is not None:
+        for i in range(len(world.home)):
+            path = world.a_star(ant.pos, Point(world.home[i][0], world.home[i][1]), ant)
+            if path:
+                ant.move(path)
+
+                obs_ants = list(filter(lambda x: x.type == 2, ants_all)).sort(key=lambda x: dist(x.pos, ant.pos))
+                obs_ants = [] if obs_ants is None else obs_ants
+                for el in obs_ants:
+                    if el.helping_ant is None:
+                        el.helping_ant = ant
+                        break
+        return "SUCCESS"
+
 class IsCarryingFood(Node):
-    def execute(self, ant, _):
+    def execute(self, ant, world):
         return 'SUCCESS' if ant.food else 'FAILURE'
 
 
 class IsEnemyNear(Node):
     def execute(self, ant, world):
+        pizdovatNaBazu(ant, world)
         if world.check_enemy(ant.pos, 1): #Медленный вариатн,  в теории можно пройтись по enemies и просчитать дистанцию
             return 'SUCCESS'
         return 'FAILURE'
@@ -47,6 +65,7 @@ class IsEnemyNear(Node):
 
 class IsFoodNear(Node):
     def execute(self, ant, world):
+        pizdovatNaBazu(ant, world)
         if world.check_food(ant.pos, ant.radius): #Медленный вариатн,  в теории можно пройтись по enemies и просчитать дистанцию
             return 'SUCCESS'
         return 'FAILURE'
@@ -54,18 +73,7 @@ class IsFoodNear(Node):
 
 class ReturnToBase(Node):
     def execute(self, ant, world):
-        for i in range(len(self.home)):
-            path = world.a_star(ant.pos, world.home[i])
-            if path:
-                ant.move(path)
-
-                obs_ants = list(filter(lambda x: x.type == 2, ants)).sort(key=lambda x: dist(x.pos, ant.pos))
-                for el in obs_ants:
-                    if el.helping_ant is None:
-                        el.helping_ant = ant
-                        break
-
-                return 'SUCCESS'
+        pizdovatNaBazu(ant, world)
         return 'FAILURE'
 
 
@@ -81,12 +89,14 @@ class CollectFood(Node):
         if nearest_food:
             path = ant.world.a_star(ant.pos, nearest_food)
             ant.move(path) #Отправили запрос
+            pizdovatNaBazu(ant, world)
             return 'RUNNING'
         return 'FAILURE'
 
 
 class Explore(Node): #Не оптимальный, переписать
     def execute(self, ant, world):
+        pizdovatNaBazu(ant, world)
         while True:
             dq, dr = random.randint(-ant.speed * 5, ant.speed * 5), random.randint(-ant.speed * 5, ant.speed * 5)
             next_point = Point(ant.pos.x + dq, ant.pos.y + dr)
@@ -95,6 +105,7 @@ class Explore(Node): #Не оптимальный, переписать
                 if path is not None:
                     break
         ant.move(path) #Отправили запрос
+        pizdovatNaBazu(ant, world)
         return 'RUNNING'
 
 class Ant:
@@ -110,9 +121,10 @@ class Ant:
             return
         api_move(self, [(el[0] - TRANSITION_BIAS * 2, el[1] - TRANSITION_BIAS * 2) for el in path])
 
-    def update(self, hp, pos):
+    def update(self, hp, pos, food):
         self.hp = hp
         self.pos = Point(pos[0] + TRANSITION_BIAS, pos[1] + TRANSITION_BIAS)
+        self.food = food
 
 
 class WorkerAnt(Ant):

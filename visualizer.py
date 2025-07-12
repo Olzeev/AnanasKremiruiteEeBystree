@@ -186,7 +186,7 @@ def parse():
         if t is None:
             worker_ants.remove(el)
         else:
-            el.update(t.health, (t.q, t.r))
+            el.update(t.health, (t.q, t.r), t.food if t.food.amount > 0 else None)
 
     for el in fighter_ants:
         t = None
@@ -198,7 +198,7 @@ def parse():
         if t is None:
             fighter_ants.remove(el)
         else:
-            el.update(t.health, (t.q, t.r))
+            el.update(t.health, (t.q, t.r), t.food if t.food.amount > 0 else None)
             
     for el in scout_ants:
         t = None
@@ -210,10 +210,11 @@ def parse():
         if t is None:
             scout_ants.remove(el)
         else:
-            el.update(t.health, (t.q, t.r))
+            el.update(t.health, (t.q, t.r), t.food if t.food.amount > 0 else None)
 
-    global cur_warriors   
+    global cur_warriors, ants_all
     cur_warriors = fighter_ants
+    ants_all = ants
             
 '''
 map_size = 200
@@ -229,7 +230,7 @@ general_map = Map([[[] for i in range(MAP_WIDTH)] for j in range(MAP_HEIGHT)])
 worker_ants = []
 scout_ants = []
 fighter_ants = []
-all_ants = []
+
 
 
 
@@ -279,9 +280,11 @@ while True:
         for worker in worker_ants:
             worker.make_move(general_map)
         for scout in scout_ants:
-            scout.make_move(general_map)
+            #scout.make_move(general_map)
+            pass
         for fighter in fighter_ants:
             fighter.make_move(general_map)
+            
         prev_time = time.time()
 
     for hexag in hexes:
@@ -302,11 +305,10 @@ while True:
 
     for ant in ants:
         x, y = hex_to_dec(ant.q - TRANSITION_BIAS, ant.r - TRANSITION_BIAS)
-        print(x, y)
         draw_hex(x, y, edge_size_scaled, HEX_VISIBLE_BG_COLOR, HEX_VISIBLE_OUTLINE_COLOR)
         print_text(['Раб', "Б", "Раз"][ant.type], (x, y - gap * 0.1), int(gap * 0.7), (0, 0, 0), 'center')
         print_text(str(ant.health), (x, y + gap / 4), int(gap * 0.4), (255, 0, 0), 'center')
-        if ant.food is not None:
+        if ant.food.amount > 0:
             print_text(['Я', "Х", "Н"][ant.food.type - 1], (x - gap / 10, y + gap / 2), int(gap * 0.4), (50, 50, 255),'right' )
             print_text(str(ant.food.amount), (x + gap / 10, y + gap / 2), int(gap * 0.4), (50, 50, 255), 'left')
         

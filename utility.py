@@ -130,7 +130,7 @@ class Map:
             return float("inf")
         if self.check_anthill(pos, 2) and ant.hp <= 20:
             return float("inf")
-        if sum([get_damage(el) for el in self.get_enemies_in_rad(pos, 1)]) * 1.5 >= ant.hp:
+        if sum([get_damage(el) if get_damage(el) is not None else 0 for el in self.get_enemies_in_rad(pos, 1)]) * 1.5 >= ant.hp:
             return float("inf")
         reward = 0
         for el in data:
@@ -198,7 +198,7 @@ class Map:
                 path.reverse()
                 path.append(goal)
                 end_path = []
-                speed = ant.speed + 1
+                speed = ant.speed
                 i = 0
                 while i < len(path) and speed - self.block_cost(self.world[path[i][1]][path[i][0]]) != 0:
                     speed -= self.block_cost(self.world[path[i][1]][path[i][0]])
