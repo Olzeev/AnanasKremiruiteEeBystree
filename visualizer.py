@@ -123,6 +123,11 @@ xc, yc = WIDTH / 2, HEIGHT / 2
 dragging = False
 last_mouse_pos = (0, 0)
 prev_time = 0
+frame_count = 0
+
+raiding_time = False
+but1 = pygame.transform.scale(pygame.image.load('media/image1.png'), (100, 100))
+but2 = pygame.transform.scale(pygame.image.load('media/image2.png'), (100, 100))
 
 
 def parse():
@@ -163,26 +168,7 @@ enemies = [Enemy(randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 
 foods = [FoodOnMap(randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 1), randint(1, 10)) for i in range(50)]
 home = [{'q': 20, 'r': 20}, {'q': 20, 'r': 21}, {'q': 21, 'r': 20}]
 spot = {'q': 20, 'r': 20}
-hexes_all = []
-
-OP = [1, 1, 2, 1, float('inf')]
-
-for q in range(200):
-    hexes_all.append([])
-    for r in range(200):
-        hex_type = randint(2, 5)
-        hexes_all[q].append(Hex(hex_type, q, r, OP[hex_type - 1]))
-
-for i in range(10):
-    q = randint(5, 195)
-    r = randint(5, 195)
-    hexes_all[q][r] = Hex(1, q, r, 1)
-    hexes_all[q + 1][r] = Hex(1, q + 1, r, 1)
-    hexes_all[q][r + 1] = Hex(1, q, r + 1, 1)
-
-
-for el in home:
-    hexes_all[el['q']][el['r']] = Hex(1, el['q'], el['r'], 1)
+hexes = [Hex(randint(1, 4), randint(0, 200), randint(0, 200), 1)]
 
 
 #general_map = Map([[[] for i in range(WIDTH)] for j in range(HEIGHT)], home, foods)
@@ -204,9 +190,13 @@ while True:
             yc = mouse_y - (mouse_y - yc) * (scale_k / old_scale)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1: 
-                dragging = True
-                last_mouse_pos = pygame.mouse.get_pos()
+            pos = pygame.mouse.get_pos()
+            if pos[0] <= 100 and pos[1] <= 100:
+                raiding_time = not raiding_time
+            else:
+                if event.button == 1: 
+                    dragging = True
+                    last_mouse_pos = pygame.mouse.get_pos()
 
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
@@ -249,7 +239,15 @@ while True:
     for food in foods:
         food.draw()
 
-    
-
+    if raiding_time:
+        sc.blit(but2, (0, 0))
+        if (frame_count // 10) % 2 == 0:
+            print_text('ЗА РОССИЮ', (WIDTH / 2, HEIGHT / 2), 300, (255, 0, 0), 'center')
+        print_text('КОНЕЦ СВО', (10, 120), 30, (255, 0, 0), 'left')
+    else:
+        sc.blit(but1, (0, 0))
+        print_text('НАЧАТЬ СВО', (10, 120), 30, (255, 0, 0), 'left')
+        
+    frame_count += 1
     pygame.display.flip()
     clock.tick(FPS)
