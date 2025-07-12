@@ -81,7 +81,6 @@ class Ant:
     def draw(self):
         x, y = hex_to_dec(self.q, self.r)
         draw_hex(x, y, edge_size_scaled, HEX_VISIBLE_BG_COLOR, HEX_VISIBLE_OUTLINE_COLOR)
-        
         print_text(['Раб', "Б", "Раз"][self.type], (x, y - gap * 0.1), int(gap * 0.7), (0, 0, 0), 'center')
         print_text(str(self.health), (x, y + gap / 4), int(gap * 0.4), (255, 0, 0), 'center')
         if self.food is None:
@@ -288,16 +287,15 @@ while True:
     
     x, y = hex_to_dec(spot['q'], spot['r'])
     draw_hex(x, y, edge_size_scaled, HEX_SPOT_BG_COLOR, HEX_SPOT_OUTLINE_COLOR)
-
-
-    for ant in ants:
-        ant.draw()
-
+    
     for enemy in enemies:
         enemy.draw()
 
     for food in foods:
         food.draw()
+
+    for ant in ants:
+        ant.draw()
 
     if raiding_time:
         sc.blit(but2, (0, 0))

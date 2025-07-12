@@ -203,7 +203,6 @@ class Map:
                     speed -= self.block_cost(self.world[path[i][1]][path[i][0]])
                     end_path.append(path[i])
                     i+=1
-                    print(path[i][1], path[i][0])
                 if len(end_path) == 0:
                     return None
 

@@ -106,7 +106,7 @@ class Ant:
         self.id = id1
 
     def move(self, path):
-        api_move(self, [(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
+        api_move(self, [(el[0] - TRANSITION_BIAS * 2, el[1] - TRANSITION_BIAS * 2) for el in path])
 
     def update(self, hp, pos):
         self.hp = hp
