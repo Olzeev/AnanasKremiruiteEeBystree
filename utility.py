@@ -61,7 +61,6 @@ class Map:
         if self.home == None:
             self.home = [(el.q + TRANSITION_BIAS, el.r + TRANSITION_BIAS) for el in home]
         self.update_times += 1
-        self.ants = ants
         if self.update_times == 10:
             for i in range(MAP_HEIGHT):
                 for j in range(MAP_WIDTH):
@@ -73,8 +72,12 @@ class Map:
                             self.world[i][j].remove(UN)
         for hexag in hexes:
             self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS] = []
+        self.ants = []
         for ant in ants:
             self.world[ant.r + TRANSITION_BIAS][ant.q + TRANSITION_BIAS].append(MY_UNITS[ant.type])
+            ant.q += TRANSITION_BIAS
+            ant.r += TRANSITION_BIAS
+            self.ants.append(ant)
         for enemy in enemies:
             self.world[enemy.r + TRANSITION_BIAS][enemy.q + TRANSITION_BIAS].append(EN_UNITS[enemy.type])
         self.food = []
@@ -286,6 +289,28 @@ class Map:
                 enemy_positions.append(point)
 
         return enemy_positions
+    def get_teammates_in_rad(self, pos, rad):
+        next_points = []
+        qur_points = [pos]
+        used_points = [pos]
+
+        for i in range(rad):
+            for el in qur_points:
+                directions = self.get_avaliable_points(el)
+                for new_pos in directions:
+                    if self.check_valid_point(new_pos) and new_pos not in used_points:
+                        used_points.append(new_pos)
+                        next_points.append(new_pos)
+
+            qur_points = next_points
+            next_points = []
+
+        teammates_positions = []
+        for point in used_points:
+            if point != pos and self.world[point.y][point.x] in MY_UNITS:
+                teammates_positions.append(point)
+
+        return teammates_positions
 
     def check_valid_point(self, pos):
         if 0 <= pos.x < MAP_WIDTH and 0 <= pos.y < MAP_HEIGHT:

@@ -46,7 +46,10 @@ class ContinueFighting(Node):
 
 class RequestBackup(Node):
     def execute(self, ant, world):
-        nearest_teammates = world.get
+        nearest_teammates = world.get_teammates_in_rad(ant.pos, ant.radius + 2)
+        can_request = []
+        for el in nearest_teammates:
+            if nearest_teammates.ho
         return 'SUCCESS'
 
 class RetreatToBase(Node):
