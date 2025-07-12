@@ -1,7 +1,7 @@
 import heapq
 
-MAP_HEIGHT = 2000
-MAP_WIDTH = 2000
+MAP_HEIGHT = 4000
+MAP_WIDTH = 4000
 
 DIRT = 1
 ACID = 2
@@ -50,15 +50,15 @@ class Point:
 class Map:
     def __init__(self, world):
         self.world = world
-        self.home = None
-        self.ants = None
+        self.home = []
+        self.ants = []
         self.food = []
         self.is_raid_time = False
-        self.anthills = None
+        self.anthills = []
         self.update_times = 0
 
     def update(self, ants, enemies, foods, hexes, home):
-        if self.home == None:
+        if self.home == []:
             self.home = [(el['q'] + TRANSITION_BIAS, el['r'] + TRANSITION_BIAS) for el in home]
         self.update_times += 1
         if self.update_times == 10:
@@ -94,7 +94,7 @@ class Map:
                     self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(ANTHILL)
                 else:
                     self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(EN_ANTHILL)
-                    if Point(hexag.q + TRANSITION_BIAS,hexag.r + TRANSITION_BIAS) not in self.anthills:
+                    if Point(hexag.q + TRANSITION_BIAS, hexag.r + TRANSITION_BIAS) not in self.anthills:
                         self.anthills.append(Point(hexag.q + TRANSITION_BIAS,hexag.r + TRANSITION_BIAS))
             else:
                 self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(HEX_TYPES[hexag.type - 1])

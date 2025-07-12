@@ -80,10 +80,11 @@ class Ant1:
 
     def draw(self):
         x, y = hex_to_dec(self.q, self.r)
-        draw_hex(x, y, edge_size_scaled, HEX_VISIBLE_BG_COLOR, HEX_VISIBLE_OUTLINE_COLOR)
+        #draw_hex(x, y, edge_size_scaled, HEX_VISIBLE_BG_COLOR, HEX_VISIBLE_OUTLINE_COLOR)
+        print("aiowfjaowifj")
         print_text(['Раб', "Б", "Раз"][self.type], (x, y - gap * 0.1), int(gap * 0.7), (0, 0, 0), 'center')
         print_text(str(self.health), (x, y + gap / 4), int(gap * 0.4), (255, 0, 0), 'center')
-        if self.food is None:
+        if self.food is not None:
             print_text(['Я', "Х", "Н"][self.food.type - 1], (x - gap / 10, y + gap / 2), int(gap * 0.4), (50, 50, 255),'right' )
             print_text(str(self.food.amount), (x + gap / 10, y + gap / 2), int(gap * 0.4), (50, 50, 255), 'left')
 
@@ -280,7 +281,6 @@ while True:
             scout.make_move(general_map)
         for fighter in fighter_ants:
             fighter.make_move(general_map)
-            pass
         prev_time = time.time()
 
     for hexag in hexes:
