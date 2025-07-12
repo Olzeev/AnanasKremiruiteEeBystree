@@ -85,7 +85,8 @@ class Map:
                     self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(ANTHILL)
                 else:
                     self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(EN_ANTHILL)
-                    self.anthills.append(Point(hexag.q + TRANSITION_BIAS,hexag.r + TRANSITION_BIAS))
+                    if Point(hexag.q + TRANSITION_BIAS,hexag.r + TRANSITION_BIAS) not in self.anthills:
+                        self.anthills.append(Point(hexag.q + TRANSITION_BIAS,hexag.r + TRANSITION_BIAS))
             else:
                 self.world[hexag.r + TRANSITION_BIAS][hexag.q + TRANSITION_BIAS].append(HEX_TYPES[hexag.type - 1])
 

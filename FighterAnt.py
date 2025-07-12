@@ -1,5 +1,6 @@
 from algorithm import Node, Sequence, Selector, IsEnemyNear, IsFoodNear, CollectFood, Ant
 from utility import *
+from visualizer import *
 
 class IsGroupTacticActive(Node):
     def execute(self, ant, world):
@@ -7,7 +8,11 @@ class IsGroupTacticActive(Node):
 
 class RaidEnemyAnthill(Node):
     def execute(self, ant, world):
-        target = world.find_nearest_enemy_anthill(ant.q, ant.r) #Доделать
+        target = None
+        pos = hex_to_dec(ant.pos.x, ant.pos.y)
+        data = [dist(pos, hex_to_dec(anthill.x, anthill.y)) for anthill in world.anthills]
+        if len(data) != 0:
+            target = world.food[world.anthills.index(min(data))]
         if target:
             path = world.a_star(ant.pos, target, ant)
             if path:
