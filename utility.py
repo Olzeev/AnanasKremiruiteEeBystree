@@ -48,15 +48,17 @@ class Point:
 
 
 class Map:
-    def __init__(self, world, home, food):
+    def __init__(self, world):
         self.world = world
-        self.home = home
-        self.food = food
+        self.home = None
+        self.food = []
         self.is_raid_time = False
         self.anthills = None
         self.update_times = 0
 
     def update(self, ants, enemies, foods, hexes, home):
+        if self.home == None:
+            self.home = [(el.q + TRANSITION_BIAS, el.r + TRANSITION_BIAS) for el in home]
         self.update_times += 1
         if self.update_times == 10:
             for i in range(MAP_HEIGHT):
@@ -73,8 +75,10 @@ class Map:
             self.world[ant.r + TRANSITION_BIAS][ant.q + TRANSITION_BIAS].append(MY_UNITS[ant.type])
         for enemy in enemies:
             self.world[enemy.r + TRANSITION_BIAS][enemy.q + TRANSITION_BIAS].append(EN_UNITS[enemy.type])
+        self.food = []
         for food in foods:
             self.world[food.r + TRANSITION_BIAS][food.q + TRANSITION_BIAS].append(FOODS[food.type - 1])
+            self.food.append((food.q + TRANSITION_BIAS, food.r + TRANSITION_BIAS))
         for hexag in hexes:
             if hexag.type == 2:  # пустой
                 for f in FOODS:

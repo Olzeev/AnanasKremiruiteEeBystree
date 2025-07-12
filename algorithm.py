@@ -54,10 +54,11 @@ class IsFoodNear(Node):
 
 class ReturnToBase(Node):
     def execute(self, ant, world):
-        path = world.a_star(ant.pos, world.home)
-        if path:
-            ant.move(path[0])
-            return 'RUNNING' if len(path) > 1 else 'SUCCESS'
+        for i in range(len(self.home)):
+            path = world.a_star(ant.pos, world.home[i])
+            if path:
+                ant.move(path[0])
+                return 'RUNNING' if len(path) > 1 else 'SUCCESS'
         return 'FAILURE'
 
 
@@ -66,10 +67,10 @@ class CollectFood(Node):
         nearest_food = world.get_nearest_food(ant.pos, ant.speed)
         if nearest_food == None:
             pos = hex_to_dec(ant.pos.x, ant.pos.y)
-            data = [dist(pos, hex_to_dec(food.q, food.r)) for food in world.food]
+            data = [dist(pos, hex_to_dec(food[0], food[1])) for food in world.food]
             if len(data) != 0:
                 ex_food = world.food[world.food.index(min(data))]
-                nearest_food = Point(ex_food.q, ex_food.r)
+                nearest_food = Point(ex_food[0], ex_food[1])
         if nearest_food:
             path = ant.world.a_star(ant.pos, nearest_food)
             ant.move(path) #Отправили запрос
