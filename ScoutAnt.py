@@ -15,7 +15,7 @@ class GoToBase(Node):
         for i in range(len(self.home)):
             path = world.a_star(ant.pos, world.home[i])
             if path:
-                ant.move(path[0])
+                ant.move(path)
                 return 'RUNNING' if len(path) > 1 else 'SUCCESS'
         return 'FAILURE'
     
@@ -30,9 +30,9 @@ class WorkersWithRes(Node):
 
 class BuildRoad(Node):
     def execute(self, ant, world):
-        path = world.a_star(ant.pos, (ant.pos[0] + int((ant.helping_ant.pos[0] - ant.pos[0]) / 2), ant.pos[1] + int((ant.helping_ant.pos[1] - ant.pos[1]) / 2)))
+        path = world.a_star(ant.pos, (ant.pos[0] + int((ant.helping_ant.pos[0] - ant.pos[0]) / 2), ant.pos[1] + int((ant.helping_ant.pos[1] - ant.pos[1]) / 2)), ant)
         if path:
-            ant.move(path[0])
+            ant.move(path)
             return 'RUNNING' if len(path) > 1 else 'SUCCESS'
         return 'FAILURE'
 
@@ -51,7 +51,7 @@ class BuildAroundBase(Node):
         r_new = int(ant.pos.y + r1 * sin(phi1))
         path = world.a_star(ant.pos, Point(q_new, r_new), ant)
         if path:
-            ant.move(path[0])
+            ant.move(path)
             return 'RUNNING' if len(path) > 1 else 'SUCCESS'
         return 'FAILURE'
 

@@ -134,7 +134,7 @@ but2 = pygame.transform.scale(pygame.image.load('media/image2.png'), (100, 100))
 
 def parse():
     r = requests.get(
-        url="https://games-test.datsteam.dev/api/arena",
+        url="https://games.datsteam.dev/api/arena",
         json={},
         headers={"X-Auth-Token": "3c541e6b-fcbf-427e-91a0-6e261e425a60"},
     )
@@ -172,7 +172,6 @@ def parse():
         elif el.type == 1:
             if el.id not in list(map(lambda x: x.id, fighter_ants)):
                 fighter_ants.append(WarriorAnt(el.id, el.health, (el.q, el.r), 70))
-                pass
         elif el.type == 2:
             if el.id not in list(map(lambda x: x.id, scout_ants)):
                 scout_ants.append(ScoutAnt(el.id, el.health, (el.q, el.r)))
@@ -212,7 +211,9 @@ def parse():
             scout_ants.remove(el)
         else:
             el.update(t.health, (t.q, t.r))
-            
+
+    global cur_warriors   
+    cur_warriors = fighter_ants
             
 '''
 map_size = 200
@@ -300,16 +301,14 @@ while True:
         food.draw()
 
     for ant in ants:
-        ant.draw()
-
-    if raiding_time:
-        sc.blit(but2, (0, 0))
-        if (frame_count // 10) % 2 == 0:
-            print_text('ЗА РОССИЮ', (WIDTH / 2, HEIGHT / 2), 300, (255, 0, 0), 'center')
-        print_text('КОНЕЦ СВО', (10, 120), 30, (255, 0, 0), 'left')
-    else:
-        sc.blit(but1, (0, 0))
-        print_text('НАЧАТЬ СВО', (10, 120), 30, (255, 0, 0), 'left')
+        x, y = hex_to_dec(ant.q - TRANSITION_BIAS, ant.r - TRANSITION_BIAS)
+        print(x, y)
+        draw_hex(x, y, edge_size_scaled, HEX_VISIBLE_BG_COLOR, HEX_VISIBLE_OUTLINE_COLOR)
+        print_text(['Раб', "Б", "Раз"][ant.type], (x, y - gap * 0.1), int(gap * 0.7), (0, 0, 0), 'center')
+        print_text(str(ant.health), (x, y + gap / 4), int(gap * 0.4), (255, 0, 0), 'center')
+        if ant.food is not None:
+            print_text(['Я', "Х", "Н"][ant.food.type - 1], (x - gap / 10, y + gap / 2), int(gap * 0.4), (50, 50, 255),'right' )
+            print_text(str(ant.food.amount), (x + gap / 10, y + gap / 2), int(gap * 0.4), (50, 50, 255), 'left')
         
     frame_count += 1
     pygame.display.flip()

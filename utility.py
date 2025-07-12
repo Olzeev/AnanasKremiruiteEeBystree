@@ -141,11 +141,11 @@ class Map:
             if ACID == el:
                 reward += 11
             if (ant.food == None or ant.food == APPLE) and APPLE == el:
-                reward -= 20
+                reward -= 200
             if (ant.food == None or ant.food == BREAD) and BREAD == el:
-                reward -= 30
+                reward -= 300
             if (ant.food == None or ant.food == NECTAR) and NECTAR == el:
-                reward -= 70
+                reward -= 700
         return reward
 
     def heuristic(self, a, b):
@@ -196,10 +196,11 @@ class Map:
                     path.append(current)
                     current = came_from[current]
                 path.reverse()
+                path.append(goal)
                 end_path = []
-                speed = ant.speed
+                speed = ant.speed + 1
                 i = 0
-                while i < len(path) and (speed - self.block_cost(self.world[path[i][1]][path[i][0]])!= 0 ):
+                while i < len(path) and speed - self.block_cost(self.world[path[i][1]][path[i][0]]) != 0:
                     speed -= self.block_cost(self.world[path[i][1]][path[i][0]])
                     end_path.append(path[i])
                     i+=1

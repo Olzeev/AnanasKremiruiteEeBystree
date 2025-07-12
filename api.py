@@ -4,7 +4,7 @@ import json
 
 
 def api_move(ant, move):
-    url = 'https://games-test.datsteam.dev/api/move'
+    url = 'https://games.datsteam.dev/api/move'
     data = {
         "moves": [
             {

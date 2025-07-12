@@ -88,7 +88,7 @@ class CollectFood(Node):
 class Explore(Node): #Не оптимальный, переписать
     def execute(self, ant, world):
         while True:
-            dq, dr = random.randint(-ant.speed, ant.speed), random.randint(-ant.speed, ant.speed)
+            dq, dr = random.randint(-ant.speed * 5, ant.speed * 5), random.randint(-ant.speed * 5, ant.speed * 5)
             next_point = Point(ant.pos.x + dq, ant.pos.y + dr)
             if world.check_valid_point(next_point) and (dq != 0 and dr != 0):
                 path = world.a_star(ant.pos, next_point, ant)
@@ -106,6 +106,8 @@ class Ant:
         self.id = id1
 
     def move(self, path):
+        if self.pos.x == path[0][0] and self.pos.y == path[0][1]:
+            return
         api_move(self, [(el[0] - TRANSITION_BIAS * 2, el[1] - TRANSITION_BIAS * 2) for el in path])
 
     def update(self, hp, pos):

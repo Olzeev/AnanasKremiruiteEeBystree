@@ -1,8 +1,8 @@
-from algorithm import Node, Sequence, Selector, IsEnemyNear, IsFoodNear, CollectFood, Ant, ReturnToBase
+from algorithm import Node, Sequence, Selector, IsEnemyNear, IsFoodNear, CollectFood, Ant, ReturnToBase, Explore
 from utility import *
 
 
-curr_warriors = []
+cur_warriors = []
 
 class IsInCombat(Node):
     def execute(self, ant, world):
@@ -24,7 +24,7 @@ class ContinueFighting(Node):
 
 class RequestBackup(Node):
     def execute(self, ant, world):
-        nearest_teammates = world.get_teammates_in_rad(ant.pos, ant.radius + 2)
+        nearest_teammates = world.get_teammates_in_rad(ant.pos, 3)
         nearest_teammates = [teammate for teammate in curr_warriors if teammate.pos in nearest_teammates]
         req_teammates = []
         enemy = world.get_enemies_in_rad[0]
@@ -177,7 +177,7 @@ class WarriorAnt(Ant):
                 RespondToSOS()
             ]),
 
-            PatrolWithResourceCheck()
+            Explore()
         ])
 
 class HotPoint:
