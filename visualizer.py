@@ -216,7 +216,7 @@ while True:
     gap = edge_size_scaled * cos(radians(30)) * 2
     
     if time.time() - prev_time >= 2:
-        # parse()
+        parse()
         prev_time = time.time()
 
     for hexag in hexes:
