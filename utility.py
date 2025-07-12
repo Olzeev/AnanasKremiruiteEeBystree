@@ -285,32 +285,11 @@ class Map:
 
         enemy_positions = []
         for point in used_points:
-            if point != pos and self.world[point.y][point.x] in EN_UNITS:
+            if point != pos and True in [type in self.world[point.y][point.x] for type in EN_UNITS]:
                 enemy_positions.append(point)
 
         return enemy_positions
-    def get_teammates_in_rad(self, pos, rad):
-        next_points = []
-        qur_points = [pos]
-        used_points = [pos]
 
-        for i in range(rad):
-            for el in qur_points:
-                directions = self.get_avaliable_points(el)
-                for new_pos in directions:
-                    if self.check_valid_point(new_pos) and new_pos not in used_points:
-                        used_points.append(new_pos)
-                        next_points.append(new_pos)
-
-            qur_points = next_points
-            next_points = []
-
-        teammates_positions = []
-        for point in used_points:
-            if point != pos and self.world[point.y][point.x] in MY_UNITS:
-                teammates_positions.append(point)
-
-        return teammates_positions
 
     def check_valid_point(self, pos):
         if 0 <= pos.x < MAP_WIDTH and 0 <= pos.y < MAP_HEIGHT:

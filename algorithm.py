@@ -98,6 +98,10 @@ class Ant:
         self.damage = damage
         self.id = id1
 
+    def update(self, hp, pos):
+        self.hp = hp
+        self.pos = pos
+
     def move(self, path):
         api.move([(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
 

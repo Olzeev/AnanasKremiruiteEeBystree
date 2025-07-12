@@ -2,6 +2,7 @@ from algorithm import Node, Sequence, Selector, IsEnemyNear, IsFoodNear, Collect
 from utility import *
 from visualizer import *
 
+curr_warriors = []
 
 class IsInCombat(Node):
     def execute(self, ant, world):
