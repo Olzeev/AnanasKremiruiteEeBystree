@@ -10,7 +10,8 @@ def api_move(ant, move):
             {
                 "ant": ant.id, 
                 "path": [
-                    {"q": el[0], "r": el[1]} for el in move
+                    {"q": el[0], 
+                     "r": el[1]} for el in move
                 ]
                 
             }
@@ -20,7 +21,7 @@ def api_move(ant, move):
 
     headers = {"X-Auth-Token": "3c541e6b-fcbf-427e-91a0-6e261e425a60", 'Content-Type': 'application/json',}
 
-    response = requests.post(url, json=json.dumps(data), headers=headers)
+    response = requests.post(url, json=data, headers=headers)
 
     print(json.dumps(data, indent=2))
 
