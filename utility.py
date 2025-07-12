@@ -51,6 +51,7 @@ class Map:
     def __init__(self, world):
         self.world = world
         self.home = None
+        self.ants = None
         self.food = []
         self.is_raid_time = False
         self.anthills = None
@@ -60,6 +61,7 @@ class Map:
         if self.home == None:
             self.home = [(el.q + TRANSITION_BIAS, el.r + TRANSITION_BIAS) for el in home]
         self.update_times += 1
+        self.ants = ants
         if self.update_times == 10:
             for i in range(MAP_HEIGHT):
                 for j in range(MAP_WIDTH):
