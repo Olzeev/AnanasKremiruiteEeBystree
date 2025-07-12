@@ -1,10 +1,7 @@
 from algorithm import Node, Sequence, Selector, Ant
 from utility import *
-from visualizer import *
+from math import sin, cos, pi
 
-class IsGroupTacticActive(Node):
-    def execute(self, ant, world):
-        return 'SUCCESS' if world.is_raid_time else 'FAILURE'
 
 class EnemiesNearby(Node):
     def execute(self, ant, world):
@@ -15,19 +12,47 @@ class EnemiesNearby(Node):
 
 class GoToBase(Node):
     def execute(self, ant, world):
-        path = world.find_path_to_storage(ant)
-        ant.move(path[0])
-        return 'RUNNING'
+        for i in range(len(self.home)):
+            path = world.a_star(ant.pos, world.home[i])
+            if path:
+                ant.move(path[0])
+                return 'RUNNING' if len(path) > 1 else 'SUCCESS'
+        return 'FAILURE'
     
 
 class WorkersWithRes(Node):
     def execute(self, ant, world):
-        workers = []
-        for ant1 in world.ants:
-            if ant1.type == 0:
-                workers.append(ant1)
-        workers.sort(key=lambda x: ())
+        if ant.helping_ant is not None:
+            return 'SUCCESS'
+        else:
+            return 'FAILURE'
+        
 
+class BuildRoad(Node):
+    def execute(self, ant, world):
+        path = world.a_star(ant.pos, ant.helping_ant.pos)
+        if path:
+            ant.move(path[0])
+            return 'RUNNING' if len(path) > 1 else 'SUCCESS'
+        return 'FAILURE'
+
+class BuildAroundBase(Node):
+    def execute(self, ant, world):
+        obs_ants = list(filter(lambda x: x.type == 2, world.ants)).sort(key=lambda x: x.id)
+        ind = 0
+        for a in obs_ants:
+            if a.id == ant.id:
+                break
+            ind += 1
+        phi1 = pi * 0.2 * ind
+        r1 = phi1 * 1.4
+        q_new = ant.q + r1 * cos(phi1)
+        r_new = ant.q + r1 * sin(phi1)
+        path = world.a_star(ant.pos, (q_new, r_new))
+        if path:
+            ant.move(path[0])
+            return 'RUNNING' if len(path) > 1 else 'SUCCESS'
+        return 'FAILURE'
 
 
 class ScoutAnt(Ant):
@@ -37,7 +62,7 @@ class ScoutAnt(Ant):
         self.radius = 4
         self.type = MY_SCOUT
         self.speed = 7
-        self.helping_ant_id = None
+        self.helping_ant = None
 
     def make_move(self, world):
         self.bt.execute(self, world)
