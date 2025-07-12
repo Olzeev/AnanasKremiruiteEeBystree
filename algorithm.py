@@ -91,15 +91,16 @@ class Explore(Node): #Не оптимальный, переписать
         return 'RUNNING'
 
 class Ant:
-    def __init__(self, hp,pos):
+    def __init__(self, hp,pos, damage):
         self.food = None
         self.pos = Point(pos.x + TRANSITION_BIAS, pos.y + TRANSITION_BIAS)
         self.hp = hp
+        self.damage = damage
     def move(self, path):
         api.move([(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
 class WorkerAnt(Ant):
-    def __init__(self, pos, hp):
-        super().__init__(pos, hp)
+    def __init__(self, pos, hp, damage):
+        super().__init__(pos, hp, damage)
         self.bt = self.create_worker_bt()
         self.radius = 1
         self.type = MY_WORKER
