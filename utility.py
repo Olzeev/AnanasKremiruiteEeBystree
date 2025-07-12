@@ -171,7 +171,7 @@ class Map:
         start = (start.x, start.y)
         goal = (goal.x, goal.y)
 
-        if self.cost(self.world[goal[0]][goal[1]], ant, Point(goal[0], goal[1])) == float('inf'):
+        if self.cost(self.world[goal[1]][goal[0]], ant, Point(goal[0], goal[1])) == float('inf'):
             return None
 
         open_set = []
@@ -199,9 +199,7 @@ class Map:
                 end_path = []
                 speed = ant.speed
                 i = 0
-                
-                while speed - self.block_cost(self.world[path[i][1]][path[i][0]])!= 0:
-                    
+                while speed - self.block_cost(self.world[path[i][1]][path[i][0]])!= 0 and i < len(path):
                     speed -= self.block_cost(self.world[path[i][1]][path[i][0]])
                     end_path.append(path[i])
                     i+=1
@@ -217,7 +215,7 @@ class Map:
                 if not (0 <= neighbor_q < MAP_WIDTH and 0 <= neighbor_r < MAP_HEIGHT):
                     continue
 
-                neighbor_type = self.world[neighbor_q][neighbor_r]
+                neighbor_type = self.world[neighbor_r][neighbor_q]
                 if self.cost(neighbor_type, ant, Point(neighbor_q, neighbor_r)) == float('inf'):
                     continue
 
