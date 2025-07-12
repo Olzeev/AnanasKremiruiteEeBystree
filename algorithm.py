@@ -58,6 +58,13 @@ class ReturnToBase(Node):
             path = world.a_star(ant.pos, world.home[i])
             if path:
                 ant.move(path[0])
+
+                obs_ants = list(filter(lambda x: x.type == 2, ants)).sort(key=lambda x: dist(x.pos, ant.pos))
+                for el in obs_ants:
+                    if el.helping_ant is None:
+                        el.helping_ant = ant
+                        break
+
                 return 'RUNNING' if len(path) > 1 else 'SUCCESS'
         return 'FAILURE'
 
@@ -109,6 +116,7 @@ class WorkerAnt(Ant):
         self.radius = 1
         self.type = MY_WORKER
         self.speed = 5
+        self.id = id1
 
     def make_move(self, world):
         self.bt.execute(self, world)
