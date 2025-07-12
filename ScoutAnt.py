@@ -56,13 +56,14 @@ class BuildAroundBase(Node):
 
 
 class ScoutAnt(Ant):
-    def __init__(self, pos, hp):
-        super().__init__(pos, hp)
+    def __init__(self, id1, hp, pos):
+        super().__init__(id1, hp, pos, 20)
         self.bt = self.create_scout_bt()
         self.radius = 4
         self.type = MY_SCOUT
         self.speed = 7
         self.helping_ant = None
+        self.id = id1
 
     def make_move(self, world):
         self.bt.execute(self, world)

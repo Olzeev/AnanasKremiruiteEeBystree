@@ -1,6 +1,6 @@
 from utility import *
-from visualizer import *
 import random
+from api import api_move
 
 class Node:
     def execute(self, ant, world) -> str:
@@ -91,26 +91,26 @@ class Explore(Node): #Не оптимальный, переписать
             dq, dr = random.randint(-ant.speed, ant.speed), random.randint(-ant.speed, ant.speed)
             next_point = Point(ant.pos.x + dq, ant.pos.y + dr)
             if world.check_valid_point(next_point) and (dq != 0 and dr != 0):
-                path = world.a_star(ant.pos, next_point)
+                path = world.a_star(ant.pos, next_point, ant)
                 if path is not None:
                     break
         ant.move(path) #Отправили запрос
         return 'RUNNING'
 
 class Ant:
-    def __init__(self, id1, hp,pos, damage):
+    def __init__(self, id1, hp, pos, damage):
         self.food = None
-        self.pos = Point(pos.x + TRANSITION_BIAS, pos.y + TRANSITION_BIAS)
+        self.pos = Point(pos[0] + TRANSITION_BIAS, pos[1] + TRANSITION_BIAS)
         self.hp = hp
         self.damage = damage
         self.id = id1
 
     def move(self, path):
-        api.move([(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
+        api_move(self, [(el[0] - TRANSITION_BIAS, el[1] - TRANSITION_BIAS) for el in path])
 
     def update(self, hp, pos):
         self.hp = hp
-        self.pos = pos
+        self.pos = Point(pos[0] + TRANSITION_BIAS, pos[1] + TRANSITION_BIAS)
 
 
 class WorkerAnt(Ant):

@@ -1,4 +1,4 @@
-from algorithm import Node, Sequence, Selector, IsEnemyNear, IsFoodNear, CollectFood, Ant
+from algorithm import Node, Sequence, Selector, Ant
 from utility import *
 
 
@@ -47,10 +47,6 @@ class ContinueFighting(Node):
 
 class RequestBackup(Node):
     def execute(self, ant, world):
-        nearest_teammates = world.get_teammates_in_rad(ant.pos, ant.radius + 2)
-        can_request = []
-        for el in nearest_teammates:
-            if nearest_teammates.ho
         return 'SUCCESS'
 
 class RetreatToBase(Node):
@@ -71,11 +67,12 @@ class RespondToSOS(Node):
         return 'RUNNING'
 
 
-class WarriorAnt(Ant):
-    def __init__(self, pos, hp, damage):
-        super().__init__(pos, hp, damage)
+class FighterAnt(Ant):
+    def __init__(self, id1, pos, hp, damage):
+        super().__init__(id1, pos, hp, damage)
         self.bt = self.create_warrior_bt()
         self.radius = 1
+        self.id = id1
         self.type = MY_FIGHTER
         self.speed = 4
         self.in_combat = False

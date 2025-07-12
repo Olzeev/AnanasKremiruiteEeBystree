@@ -4,6 +4,8 @@ from math import sin, cos, radians
 from random import randint, random
 import requests
 import time
+from FighterAnt import *
+from ScoutAnt import *
 
 from algorithm import *
 
@@ -166,13 +168,14 @@ def parse():
     for el in ants:
         if el.type == 0:
             if el.id not in list(map(lambda x: x.id, worker_ants)):
-                worker_ants.append(el)
+                worker_ants.append(WorkerAnt(el.id, el.health, (el.q, el.r), 30))
         elif el.type == 1:
             if el.id not in list(map(lambda x: x.id, fighter_ants)):
-                fighter_ants.append(el)
+                #fighter_ants.append(FighterAnt(el.id, el.health, (el.q, el.r), 70))
+                pass
         elif el.type == 2:
             if el.id not in list(map(lambda x: x.id, scout_ants)):
-                scout_ants.append(el)
+                scout_ants.append(ScoutAnt(el.id, el.health, (el.q, el.r)))
 
     for el in worker_ants:
         t = None
@@ -184,7 +187,7 @@ def parse():
         if t is None:
             worker_ants.remove(el)
         else:
-            el.update((t.q, t.r), t.health)
+            el.update(t.health, (t.q, t.r))
 
     for el in fighter_ants:
         t = None
@@ -196,7 +199,7 @@ def parse():
         if t is None:
             fighter_ants.remove(el)
         else:
-            el.update((t.q, t.r), t.health)
+            el.update(t.health, (t.q, t.r))
             
     for el in scout_ants:
         t = None
@@ -208,7 +211,7 @@ def parse():
         if t is None:
             scout_ants.remove(el)
         else:
-            el.update((t.q, t.r), t.health)
+            el.update(t.health, (t.q, t.r))
             
             
     
@@ -221,7 +224,7 @@ spot = {'q': 20, 'r': 20}
 hexes = [Hex(randint(1, 4), randint(0, 200), randint(0, 200), 1)]
 
 
-general_map = Map([[[] for i in range(MAP_WIDTH)] for j in range(MAP_HEIGHT)], home, foods)
+general_map = Map([[[] for i in range(MAP_WIDTH)] for j in range(MAP_HEIGHT)])
 worker_ants = []
 scout_ants = []
 fighter_ants = []
