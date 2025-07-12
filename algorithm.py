@@ -57,7 +57,7 @@ class ReturnToBase(Node):
         for i in range(len(self.home)):
             path = world.a_star(ant.pos, world.home[i])
             if path:
-                ant.move(path[0])
+                ant.move(path)
 
                 obs_ants = list(filter(lambda x: x.type == 2, ants)).sort(key=lambda x: dist(x.pos, ant.pos))
                 for el in obs_ants:
@@ -65,7 +65,7 @@ class ReturnToBase(Node):
                         el.helping_ant = ant
                         break
 
-                return 'RUNNING' if len(path) > 1 else 'SUCCESS'
+                return 'SUCCESS'
         return 'FAILURE'
 
 
