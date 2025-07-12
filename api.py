@@ -6,10 +6,10 @@ import json
 def api_move(ant, move):
     url = 'https://games-test.datsteam.dev/api/move'
     data = {
-        "moves": [
+        "moves[]": [
             {
                 "ant": ant.id, 
-                "path": [
+                "path[]": [
                     {"q": el[0], "r": el[1]} for el in move
                 ]
             }
@@ -21,4 +21,4 @@ def api_move(ant, move):
 
     response = requests.post(url, json=json.dumps(data), headers=headers)
 
-    print(response)  # Ответ в формате JSON
+    print(response.json())  # Ответ в формате JSON

@@ -1,7 +1,7 @@
 import heapq
 
-MAP_HEIGHT = 2000
-MAP_WIDTH = 2000
+MAP_HEIGHT = 5000
+MAP_WIDTH = 5000
 
 DIRT = 1
 ACID = 2
@@ -25,7 +25,7 @@ WORKER = [MY_WORKER, EN_WORKER]
 SCOUT = [MY_SCOUT, EN_SCOUT]
 FIGHTER = [MY_FIGHTER, EN_FIGHTER]
 
-TRANSITION_BIAS = 500
+TRANSITION_BIAS = 2000
 
 
 def dist(a, b):
@@ -199,10 +199,13 @@ class Map:
                 end_path = []
                 speed = ant.speed
                 i = 0
+                
                 while speed - self.block_cost(self.world[path[i][1]][path[i][0]])!= 0:
+                    
                     speed -= self.block_cost(self.world[path[i][1]][path[i][0]])
                     end_path.append(path[i])
                     i+=1
+                    print(path[i][1], path[i][0])
                 if len(end_path) == 0:
                     return None
 
@@ -249,6 +252,7 @@ class Map:
         for i in range(rad):
             for el in qur_points:
                 directions = self.get_available_points(el)
+                print(el.y, el.x)
                 if item in self.world[el.y][el.x]:
                     return True
                 for new_pos in directions:
