@@ -1,6 +1,6 @@
 from algorithm import Node, Sequence, Selector, IsEnemyNear, IsFoodNear, CollectFood, Ant
 from utility import *
-from visualizer import *
+
 
 
 class IsInCombat(Node):

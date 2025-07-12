@@ -30,7 +30,7 @@ class WorkersWithRes(Node):
 
 class BuildRoad(Node):
     def execute(self, ant, world):
-        path = world.a_star(ant.pos, (ant.pos[0] + (ant.helping_ant.pos[0] - ant.pos[0]) / 2, ant.pos[1] + (ant.helping_ant.pos[1] - ant.pos[1]) / 2))
+        path = world.a_star(ant.pos, (ant.pos[0] + int((ant.helping_ant.pos[0] - ant.pos[0]) / 2), ant.pos[1] + int((ant.helping_ant.pos[1] - ant.pos[1]) / 2)))
         if path:
             ant.move(path[0])
             return 'RUNNING' if len(path) > 1 else 'SUCCESS'

@@ -161,6 +161,56 @@ def parse():
     spot = res['spot']
     hexes = [Hex(h['type'], h['q'], h['r'], h['cost']) for h in res['map']]
 
+    general_map.update(ants, enemies, foods, hexes, home)
+
+    for el in ants:
+        if el.type == 0:
+            if el.id not in list(map(lambda x: x.id, worker_ants)):
+                worker_ants.append(el)
+        elif el.type == 1:
+            if el.id not in list(map(lambda x: x.id, fighter_ants)):
+                fighter_ants.append(el)
+        elif el.type == 2:
+            if el.id not in list(map(lambda x: x.id, scout_ants)):
+                scout_ants.append(el)
+
+    for el in worker_ants:
+        t = None
+        for el1 in ants:
+            if el1.id == el.id:
+                t = el1
+                break
+        
+        if t is None:
+            worker_ants.remove(el)
+        else:
+            el.update((t.q, t.r), t.health)
+
+    for el in fighter_ants:
+        t = None
+        for el1 in ants:
+            if el1.id == el.id:
+                t = el1
+                break
+        
+        if t is None:
+            fighter_ants.remove(el)
+        else:
+            el.update((t.q, t.r), t.health)
+            
+    for el in scout_ants:
+        t = None
+        for el1 in ants:
+            if el1.id == el.id:
+                t = el1
+                break
+        
+        if t is None:
+            scout_ants.remove(el)
+        else:
+            el.update((t.q, t.r), t.health)
+            
+            
     
 map_size = 200
 ants = [Ant(i, randint(0, 2), randint(0, map_size - 1), randint(0, map_size - 1), 100, Food(randint(0, 2), randint(1, 10)), None, None, None, None) for i in range(20)]
@@ -171,8 +221,12 @@ spot = {'q': 20, 'r': 20}
 hexes = [Hex(randint(1, 4), randint(0, 200), randint(0, 200), 1)]
 
 
-#general_map = Map([[[] for i in range(WIDTH)] for j in range(HEIGHT)], home, foods)
-#worker_ants = [WorkerAnt((ant.q, ant.r), ant.health, ant.speed) for ant in ants if ant.type == 0]
+general_map = Map([[[] for i in range(MAP_WIDTH)] for j in range(MAP_HEIGHT)], home, foods)
+worker_ants = []
+scout_ants = []
+fighter_ants = []
+all_ants = []
+
 
 
 while True:
@@ -217,6 +271,9 @@ while True:
     
     if time.time() - prev_time >= 2:
         parse()
+
+        for worker in worker_ants:
+            worker.make_move(general_map)
         prev_time = time.time()
 
     for hexag in hexes:
